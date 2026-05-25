@@ -1,19 +1,21 @@
-# 虚拟环境
-.venv
-
-# IDE 配置
-.idea
-.claude
-
-# 项目配置与日志
+# Config with secrets
 AgentProject/config/rag.yaml
-AgentProject/log
-AgentProject/md5.text
 
-# 忽略所有目录下的 __pycache__ 文件夹
+# Python
 __pycache__/
-
-# 忽略所有 .pyc 编译文件
 *.pyc
 *.pyo
 *.pyd
+
+# IDE
+.idea/
+.claude/
+
+# Logs
+AgentProject/log/
+*.text
+md5.text
+
+# Environment
+.env
+.venv/
