@@ -2,6 +2,7 @@ import asyncio
 import hashlib
 import json
 import os
+import random
 import sys
 import time
 import uuid
@@ -69,6 +70,7 @@ def _run_agent(task_id: str, query: str):
         all_chunks = []
 
         query_preview = query[:60].replace('\n', ' ') + ('...' if len(query) > 60 else '')
+        time.sleep(random.uniform(0.5, 1.5))
         tasks[task_id]["thinking_chunks"].append(f"嗯……用户问到：{query_preview}\n\n")
 
         for i, chunk in enumerate(agent.execute_stream(query)):

@@ -1261,7 +1261,22 @@
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let fullText = "";
+        let displayedLen = 0;
         let firstChunk = true;
+        let draining = false;
+
+        async function drainChars() {
+          if (draining) return;
+          draining = true;
+          while (displayedLen < fullText.length) {
+            displayedLen++;
+            const partial = fullText.substring(0, displayedLen);
+            mdContainer.innerHTML = marked.parse(partial);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            await new Promise(r => setTimeout(r, 10));
+          }
+          draining = false;
+        }
 
         while (true) {
           const { done, value } = await reader.read();
@@ -1276,8 +1291,12 @@
             contentDiv.appendChild(mdContainer);
           }
 
-          mdContainer.innerHTML = marked.parse(fullText);
-          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+          drainChars();
+        }
+
+        // 等待所有字符输出完毕
+        while (displayedLen < fullText.length) {
+          await new Promise(r => setTimeout(r, 10));
         }
 
         // 添加"下载报告"按钮（消息气泡外侧）
