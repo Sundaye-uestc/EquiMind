@@ -1,5 +1,5 @@
 collection_name: agent
-persist_directory: D:\Projects\AgentLearning\AgentProject\rag\chroma_db
+persist_directory: rag/chroma_db
 k: 3
 data_path: data
 md5_hex_store: md5.text

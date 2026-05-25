@@ -1,10 +1,11 @@
 import chromadb
 import os
+import sys
+from pathlib import Path
 
-# ===================== 关键配置（确认路径正确）=====================
-# 替换成你实际的 chroma.sqlite3 所在文件夹路径
-CHROMA_DB_PATH = r"D:\Projects\AgentLearning\AgentProject\rag\chroma_db"
-# ================================================================
+# chroma_db 默认路径（相对于项目根目录）
+_CHROMA_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backend", "rag", "chroma_db")
+CHROMA_DB_PATH = sys.argv[1] if len(sys.argv) > 1 else _CHROMA_DB_PATH
 
 # 验证路径是否存在
 if not os.path.exists(CHROMA_DB_PATH):

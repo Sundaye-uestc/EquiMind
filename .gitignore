@@ -1,5 +1,8 @@
+# ChromaDB
+backend/rag/chroma_db/
+
 # Config with secrets
-AgentProject/config/rag.yaml
+backend/config/rag.yaml
 
 # Python
 __pycache__/
@@ -12,7 +15,7 @@ __pycache__/
 .claude/
 
 # Logs
-AgentProject/log/
+backend/log/
 *.text
 md5.text
 
