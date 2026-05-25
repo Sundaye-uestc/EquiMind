@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>多智能体诊断控制台</title>
+  <title>航空、交通领域边缘侧大模型智能系统</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -180,10 +181,8 @@
       background: #f0f0f0;
       color: #333;
       border-radius: 12px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
     .message.system .message-content {
@@ -192,6 +191,206 @@
       border-radius: 12px;
       text-align: center;
       font-size: 12px;
+    }
+
+    /* 思考过程折叠区 */
+    .thinking-expander {
+      margin-bottom: 10px;
+    }
+
+    .thinking-expander summary {
+      color: #667eea;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 14px;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .thinking-expander summary:hover {
+      background: #f0f3ff;
+    }
+
+    .thinking-expander .thinking-content {
+      font-style: italic;
+      color: #888;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 12px 14px;
+      word-break: break-word;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+    }
+
+    /* 正在思考中动画 */
+    .thinking-spinner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #667eea;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 0;
+    }
+
+    .thinking-spinner .dot-pulse {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .thinking-spinner .dot-pulse span {
+      width: 6px;
+      height: 6px;
+      background: #667eea;
+      border-radius: 50%;
+      animation: dotBounce 1.2s infinite ease-in-out;
+    }
+
+    .thinking-spinner .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-spinner .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 打字机光标 */
+    .typewriter-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: #667eea;
+      margin-left: 2px;
+      animation: blink 0.8s infinite;
+      vertical-align: text-bottom;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* 助手回答容器 — Markdown 渲染 */
+    .markdown-body {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+      word-wrap: break-word;
+    }
+
+    .markdown-body h1,
+    .markdown-body h2,
+    .markdown-body h3,
+    .markdown-body h4,
+    .markdown-body h5,
+    .markdown-body h6 {
+      margin: 0.6em 0 0.4em;
+      font-weight: 600;
+      color: #162238;
+    }
+
+    .markdown-body h1 { font-size: 1.5em; border-bottom: 2px solid #667eea; padding-bottom: 6px; }
+    .markdown-body h2 { font-size: 1.3em; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px; }
+    .markdown-body h3 { font-size: 1.15em; }
+    .markdown-body h4 { font-size: 1.05em; }
+
+    .markdown-body p {
+      margin: 0.4em 0;
+    }
+
+    .markdown-body ul,
+    .markdown-body ol {
+      margin: 0.4em 0;
+      padding-left: 1.8em;
+    }
+
+    .markdown-body li {
+      margin: 0.2em 0;
+    }
+
+    .markdown-body strong {
+      font-weight: 700;
+      color: #162238;
+    }
+
+    .markdown-body em {
+      font-style: italic;
+    }
+
+    .markdown-body code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 0.9em;
+      color: #d63384;
+    }
+
+    .markdown-body pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 14px 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 0.6em 0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .markdown-body pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    .markdown-body blockquote {
+      margin: 0.6em 0;
+      padding: 8px 16px;
+      border-left: 4px solid #667eea;
+      background: #f8f9ff;
+      color: #555;
+    }
+
+    .markdown-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.6em 0;
+      font-size: 13px;
+    }
+
+    .markdown-body th,
+    .markdown-body td {
+      padding: 8px 12px;
+      border: 1px solid #e0e0e0;
+      text-align: left;
+    }
+
+    .markdown-body th {
+      background: #f5f5f5;
+      font-weight: 600;
+    }
+
+    .markdown-body tr:hover {
+      background: #fafafa;
+    }
+
+    .markdown-body hr {
+      margin: 1em 0;
+      border: none;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .markdown-body a {
+      color: #667eea;
+      text-decoration: underline;
     }
 
     .input-area {
@@ -748,7 +947,7 @@
   <!-- 左侧导航栏 -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <h2>🤖 装备诊断智能体</h2>
+      <h2>🤖 航空、交通领域边缘侧大模型智能系统</h2>
     </div>
 
     <div class="nav-tabs">
@@ -772,8 +971,7 @@
     <!-- 智能问答页面 -->
     <div class="page page-chat active" id="page-chat">
       <div class="chat-header">
-        <h1>🤖 基于多智能体协同的装备诊断平台</h1>
-        <p>基于FastAPI + LangGraph</p>
+        <h1>🤖 航空、交通领域边缘侧大模型智能系统</h1>
       </div>
 
       <div class="messages" id="messages"></div>
@@ -870,23 +1068,14 @@
     let currentTaskId = null;
     let statusTimer = null;
     let isSubmitting = false;
-    let executionStartTime = null;
-    let executionMessageElement = null;
-    let executionTimerInterval = null;
-    let lastCompletedStage = null;
-    let thinkingMessageShown = false;
-    let pollAttempts = 0;  // 轮询次数计数
+    let pollAttempts = 0;
+    let reportStarted = false;
 
-    const thinkingMessages = [
-      "嗯...让我思考一下",
-      "好的，我在分析中",
-      "我需要思考一下",
-      "正在进行深度诊断",
-      "分析中，请稍候",
-      "让我查看一下知识库",
-      "正在关联历史案例",
-      "分析数据中..."
-    ];
+    // 配置 marked 渲染器
+    marked.setOptions({
+      breaks: true,
+      gfm: true,
+    });
 
     // ========== 页面切换 ==========
     function switchPage(pageName) {
@@ -944,13 +1133,87 @@
       return contentDiv;
     }
 
+    async function streamThinking(taskId) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "message assistant";
+
+      const contentDiv = document.createElement("div");
+      contentDiv.className = "message-content";
+
+      const detailsEl = document.createElement("details");
+      detailsEl.className = "thinking-expander";
+      detailsEl.open = true;
+
+      const summaryEl = document.createElement("summary");
+      summaryEl.textContent = "🧠 思考过程 (进行中...)";
+
+      const thinkingContent = document.createElement("div");
+      thinkingContent.className = "thinking-content markdown-body";
+      thinkingContent.__rawText = "";
+
+      detailsEl.appendChild(summaryEl);
+      detailsEl.appendChild(thinkingContent);
+      contentDiv.appendChild(detailsEl);
+      messageDiv.appendChild(contentDiv);
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/diagnosis/tasks/${taskId}/thinking/stream`);
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = JSON.parse(line.slice(6));
+              if (data.done) {
+                summaryEl.textContent = "🧠 思考过程 (已完成)";
+                detailsEl.open = false;
+                if (!reportStarted) {
+                  reportStarted = true;
+                  clearTimeout(statusTimer);
+                  statusTimer = null;
+                  addMessage("✅ 诊断任务已完成！正在加载报告...", "system");
+                  await new Promise(r => setTimeout(r, Math.random() * 1000 + 1000));
+                  streamReport(taskId);
+                }
+                return;
+              }
+              if (data.chunk) {
+                thinkingContent.innerHTML = marked.parse(thinkingContent.__rawText + data.chunk);
+                thinkingContent.__rawText = (thinkingContent.__rawText || "") + data.chunk;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+              }
+            }
+          }
+        }
+      } catch (error) {
+        summaryEl.textContent = "🧠 思考过程 (连接中断)";
+        console.error("Thinking stream error:", error);
+      }
+    }
+
     async function streamReport(taskId) {
       const messageDiv = document.createElement("div");
       messageDiv.className = "message assistant";
 
       const contentDiv = document.createElement("div");
       contentDiv.className = "message-content";
-      contentDiv.textContent = "📄 正在生成诊断报告...\n\n";
+
+      // 加载指示器
+      const loadingEl = document.createElement("div");
+      loadingEl.className = "thinking-spinner";
+      loadingEl.innerHTML = '⏳ 正在生成诊断报告... <span class="dot-pulse"><span></span><span></span><span></span></span>';
+      contentDiv.appendChild(loadingEl);
 
       messageDiv.appendChild(contentDiv);
       messagesDiv.appendChild(messageDiv);
@@ -960,18 +1223,18 @@
         const response = await fetch(`${BACKEND_URL}/api/diagnosis/tasks/${taskId}/report/stream`);
 
         if (!response.ok) {
+          loadingEl.remove();
           contentDiv.textContent = `❌ 报告生成失败: ${response.statusText}`;
           return;
         }
 
-        // 创建 pre 标签保留格式
-        const preElement = document.createElement('pre');
-        preElement.style.cssText = 'white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 12px; line-height: 1.4; background: #f5f5f5; padding: 15px; border-radius: 4px; overflow-x: auto; max-height: 70vh; overflow-y: auto;';
-        contentDiv.appendChild(preElement);
+        const mdContainer = document.createElement('div');
+        mdContainer.className = 'markdown-body';
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let fullText = "";
+        let firstChunk = true;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -979,14 +1242,19 @@
 
           const chunk = decoder.decode(value, { stream: true });
           fullText += chunk;
-          preElement.textContent = fullText;  // 用 textContent 而不是 innerHTML，避免 XSS
-          
-          // 同时滚动外层和内层容器，确保滑动块跟随最新输出
-          preElement.scrollTop = preElement.scrollHeight;
+
+          if (firstChunk && fullText.trim()) {
+            firstChunk = false;
+            loadingEl.remove();
+            contentDiv.appendChild(mdContainer);
+          }
+
+          mdContainer.innerHTML = marked.parse(fullText);
           messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
       } catch (error) {
+        loadingEl.remove();
         contentDiv.textContent = `❌ 流式报告获取失败: ${error.message}`;
       }
     }
@@ -1000,22 +1268,20 @@
 
         const task = await response.json();
         if (task.status === "completed") {
-          clearInterval(statusTimer);
-          clearInterval(executionTimerInterval);
+          clearTimeout(statusTimer);
           statusTimer = null;
-          executionTimerInterval = null;
           pollAttempts = 0;
-          addMessage(`✅ 诊断任务已完成！正在加载报告...`, "system");
-          streamReport(currentTaskId);
+          if (!reportStarted) {
+            reportStarted = true;
+            addMessage(`✅ 诊断任务已完成！正在加载报告...`, "system");
+            await new Promise(r => setTimeout(r, Math.random() * 1000 + 500));
+            streamReport(currentTaskId);
+          }
         } else if (task.status === "failed") {
           clearInterval(statusTimer);
-          clearInterval(executionTimerInterval);
           statusTimer = null;
-          executionTimerInterval = null;
           pollAttempts = 0;
           addMessage(`❌ 任务失败: ${task.error || "未知错误"}`, "system");
-        } else if (task.status === "running") {
-          checkAndShowStageProgress(task);
         }
       } catch (error) {
         console.error("轮询失败:", error);
@@ -1038,45 +1304,6 @@
       schedulePoll();
     }
 
-    function checkAndShowStageProgress(task) {
-      const planningStage = task.stages?.find(s => s.name === "任务规划");
-
-      if (planningStage && planningStage.status === "done" && !thinkingMessageShown) {
-        thinkingMessageShown = true;
-        const randomMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
-        const messageText = `🤔 ${randomMessage} ⏳ (0s)`;
-        executionMessageElement = addMessage(messageText, "assistant");
-
-        executionStartTime = Date.now();
-        executionTimerInterval = setInterval(() => {
-          if (executionStartTime && executionMessageElement) {
-            const elapsed = Math.floor((Date.now() - executionStartTime) / 1000);
-            const baseText = executionMessageElement.textContent.replace(/ ⏳ \(\d+s\)$/, "");
-            executionMessageElement.textContent = `${baseText} ⏳ (${elapsed}s)`;
-          }
-        }, 1000);
-        return;
-      }
-
-      if (!thinkingMessageShown && executionStartTime) {
-        const elapsed = (Date.now() - executionStartTime) / 1000;
-        if (elapsed > 2) {
-          thinkingMessageShown = true;
-          const randomMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
-          const messageText = `🤔 ${randomMessage} ⏳ (${Math.floor(elapsed)}s)`;
-          executionMessageElement = addMessage(messageText, "assistant");
-
-          executionTimerInterval = setInterval(() => {
-            if (executionStartTime && executionMessageElement) {
-              const elapsed = Math.floor((Date.now() - executionStartTime) / 1000);
-              const baseText = executionMessageElement.textContent.replace(/ ⏳ \(\d+s\)$/, "");
-              executionMessageElement.textContent = `${baseText} ⏳ (${elapsed}s)`;
-            }
-          }, 1000);
-        }
-      }
-    }
-
     async function submitTask() {
       const description = taskDescription.value.trim();
 
@@ -1088,6 +1315,7 @@
       if (isSubmitting) return;
       isSubmitting = true;
       submitBtn.disabled = true;
+      reportStarted = false;
 
       try {
         addMessage(`📝 ${description}`, "user");
@@ -1112,20 +1340,8 @@
 
         addMessage(`✨ 诊断任务已启动 (ID: ${currentTaskId})`, "system");
 
-        // 立即显示思考消息
-        executionStartTime = Date.now();
-        thinkingMessageShown = true;
-        const randomMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
-        executionMessageElement = addMessage(`🤔 ${randomMessage} ⏳ (0s)`, "assistant");
-
-        // 启动计时器
-        executionTimerInterval = setInterval(() => {
-          if (executionStartTime && executionMessageElement) {
-            const elapsed = Math.floor((Date.now() - executionStartTime) / 1000);
-            const baseText = executionMessageElement.textContent.replace(/ ⏳ \(\d+s\)$/, "");
-            executionMessageElement.textContent = `${baseText} ⏳ (${elapsed}s)`;
-          }
-        }, 1000);
+        // 启动思考过程实时流
+        streamThinking(currentTaskId);
 
         if (statusTimer) clearInterval(statusTimer);
         startPolling();
@@ -1447,7 +1663,7 @@
     }
 
     // 初始化
-    addMessage("👋 欢迎使用基于大模型的多智能体协同的装备诊断平台！\n\n请在下方输入故障现象和工况信息，系统将自动启动多智能体协作进行诊断分析。\n\n左侧菜单可切换到知识库管理和MCP工具查看功能。", "system");
+    addMessage("👋 欢迎使用航空、交通领域边缘侧大模型智能系统！\n\n请在下方输入故障现象和工况信息，系统将自动启动多智能体协作进行诊断分析。\n\n左侧菜单可切换到知识库管理和MCP工具查看功能。", "system");
 
     // 回车快捷提交
     document.addEventListener("keydown", (e) => {
