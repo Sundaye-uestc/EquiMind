@@ -1,0 +1,1462 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>多智能体诊断控制台</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      display: flex;
+      color: #333;
+    }
+
+    /* 左侧导航栏 */
+    .sidebar {
+      width: 200px;
+      background: white;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+
+    .sidebar-header h2 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .nav-tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 10px;
+    }
+
+    .nav-tab {
+      padding: 15px 16px;
+      border: none;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      border-radius: 6px;
+      transition: all 0.3s;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-tab:hover {
+      background: #f5f5f5;
+      color: #667eea;
+    }
+
+    .nav-tab.active {
+      background: #f0f3ff;
+      color: #667eea;
+      border-left-color: #667eea;
+      font-weight: 600;
+    }
+
+    .nav-tab-icon {
+      font-size: 18px;
+    }
+
+    /* 主内容区域 */
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+      overflow: hidden;
+    }
+
+    /* 页面内容 */
+    .page {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .page.active {
+      display: flex;
+    }
+
+    /* ========== 聊天页面 ========== */
+    .page-chat {
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: center;
+    }
+
+    .chat-header h1 {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .chat-header p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      display: flex;
+      margin-bottom: 12px;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .message-content {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      word-wrap: break-word;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.user .message-content {
+      background: #667eea;
+      color: white;
+      border-radius: 18px;
+    }
+
+    .message.assistant .message-content {
+      background: #f0f0f0;
+      color: #333;
+      border-radius: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+
+    .message.system .message-content {
+      background: #fff3cd;
+      color: #856404;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .input-area {
+      padding: 20px;
+      border-top: 1px solid #e0e0e0;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 50px;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ========== 知识库管理页面 ========== */
+    .page-kb {
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .kb-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .kb-header h1 {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .kb-header p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .kb-content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    /* 统计卡片 */
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .stat-card-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card-label {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 8px;
+    }
+
+    .stat-card-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    /* 上传区域 */
+    .upload-section {
+      background: white;
+      border: 2px dashed #667eea;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .upload-section:hover {
+      background: #f8f9ff;
+      border-color: #764ba2;
+    }
+
+    .upload-section.dragover {
+      background: #f0f3ff;
+      border-color: #764ba2;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .upload-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .upload-description {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 16px;
+    }
+
+    .upload-formats {
+      font-size: 12px;
+      color: #667eea;
+      margin-top: 12px;
+    }
+
+    #upload-input {
+      display: none;
+    }
+
+    /* 搜索区域 */
+    .search-section {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 25px;
+    }
+
+    .search-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 10px 30px;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .search-results {
+      margin-top: 20px;
+    }
+
+    .search-result-item {
+      background: #f9f9f9;
+      border-left: 3px solid #667eea;
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+
+    .search-result-item:hover {
+      background: #f5f5f5;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .search-result-title {
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .search-result-score {
+      background: #667eea;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .search-result-source {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 8px;
+    }
+
+    .search-result-content {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .search-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    /* 标签页 */
+    .kb-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 25px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .kb-tab-btn {
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #999;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+      margin-bottom: -1px;
+    }
+
+    .kb-tab-btn:hover {
+      color: #667eea;
+    }
+
+    .kb-tab-btn.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .kb-tab-content {
+      display: none;
+    }
+
+    .kb-tab-content.active {
+      display: block;
+    }
+
+    /* 文档列表 */
+    .documents-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .documents-table thead {
+      background: #f9f9f9;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .documents-table th {
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .documents-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+    }
+
+    .documents-table tr:hover {
+      background: #fafafa;
+    }
+
+    .document-name {
+      font-weight: 500;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .document-size {
+      color: #999;
+    }
+
+    .document-chunks {
+      background: #f0f3ff;
+      color: #667eea;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    .document-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-delete {
+      background: #ff6b6b;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s;
+    }
+
+    .btn-delete:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+
+    .documents-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+      font-size: 14px;
+    }
+
+    /* ========== MCP工具页面 ========== */
+    .page-mcp {
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .mcp-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .mcp-header h1 {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .mcp-header p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .mcp-content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .tool-card {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+    }
+
+    .tool-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px);
+    }
+
+    .tool-card-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tool-card-description {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    .tool-card-params {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .tool-param {
+      margin-bottom: 8px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .tool-param:last-child {
+      margin-bottom: 0;
+    }
+
+    .tool-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 150px;
+      }
+
+      .nav-tab {
+        font-size: 12px;
+        padding: 12px 10px;
+      }
+
+      .stats-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .kb-content {
+        padding: 20px;
+      }
+
+      .mcp-content {
+        padding: 20px;
+      }
+
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .nav-tabs {
+        flex-direction: row;
+        gap: 0;
+      }
+
+      .nav-tab {
+        flex: 1;
+        margin-bottom: 0;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+      }
+
+      .nav-tab.active {
+        border-left: none;
+        border-bottom-color: #667eea;
+      }
+
+      .message-content {
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 左侧导航栏 -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>🤖 装备诊断智能体</h2>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchPage('chat')">
+        <span class="nav-tab-icon">💬</span>
+        <span>智能问答</span>
+      </button>
+      <button class="nav-tab" onclick="switchPage('kb')">
+        <span class="nav-tab-icon">📚</span>
+        <span>知识库管理</span>
+      </button>
+      <button class="nav-tab" onclick="switchPage('mcp')">
+        <span class="nav-tab-icon">🔧</span>
+        <span>MCP工具</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 主内容区域 -->
+  <div class="main-container">
+    <!-- 智能问答页面 -->
+    <div class="page page-chat active" id="page-chat">
+      <div class="chat-header">
+        <h1>🤖 基于多智能体协同的装备诊断平台</h1>
+        <p>基于FastAPI + LangGraph</p>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="input-area">
+        <textarea id="task-description" placeholder="请输入故障现象与工况信息，系统将自动分析并生成诊断报告..." rows="3"></textarea>
+        <div class="button-group">
+          <button class="btn-submit" onclick="submitTask()" id="submit-btn">发送诊断请求</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 知识库管理页面 -->
+    <div class="page page-kb" id="page-kb">
+      <div class="kb-header">
+        <h1>📚 知识库管理</h1>
+        <p>基于 Agentic RAG 架构</p>
+      </div>
+
+      <div class="kb-content">
+        <!-- 统计卡片 -->
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-card-icon">📄</div>
+            <div class="stat-card-label">文档数量</div>
+            <div class="stat-card-value" id="stat-doc-count">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon">🔗</div>
+            <div class="stat-card-label">向量片段</div>
+            <div class="stat-card-value" id="stat-chunk-count">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon">📋</div>
+            <div class="stat-card-label">支持的格式</div>
+            <div class="stat-card-value" style="font-size: 16px; color: #666;">PDF/DOCX/TXT</div>
+          </div>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="kb-tabs">
+          <button class="kb-tab-btn active" onclick="switchKBTab('upload')">⬆️ 上传文档</button>
+          <button class="kb-tab-btn" onclick="switchKBTab('documents')">📄 文档列表</button>
+          <button class="kb-tab-btn" onclick="switchKBTab('search')">🔍 知识搜索</button>
+        </div>
+
+        <!-- 上传标签页 -->
+        <div class="kb-tab-content active" id="tab-upload">
+          <div class="upload-section" id="upload-section" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('upload-input').click()">
+            <div class="upload-icon">⬆️</div>
+            <div class="upload-title">上传文档</div>
+            <div class="upload-description">点击选择文件或将文件拖拽到此处</div>
+            <div class="upload-formats">支持 PDF、Word、TXT、Markdown 等格式</div>
+            <input type="file" id="upload-input" accept=".pdf,.docx,.txt,.md,.markdown" onchange="handleFileSelect(event)" />
+          </div>
+        </div>
+
+        <!-- 文档列表标签页 -->
+        <div class="kb-tab-content" id="tab-documents">
+          <div id="documents-container">
+            <div class="documents-empty">📭 加载中...</div>
+          </div>
+        </div>
+
+        <!-- 搜索标签页 -->
+        <div class="kb-tab-content" id="tab-search">
+          <div class="search-section">
+            <div class="search-header">
+              <input type="text" class="search-input" id="search-input" placeholder="搜索知识库内容..." />
+              <button class="search-btn" onclick="performSearch()">搜索</button>
+            </div>
+            <div class="search-results" id="search-results"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MCP工具页面 -->
+    <div class="page page-mcp" id="page-mcp">
+      <div class="mcp-header">
+        <h1>🔧 MCP工具</h1>
+        <p>可用的诊断工具和资源</p>
+      </div>
+
+      <div class="mcp-content">
+        <div class="tools-grid" id="tools-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND_URL = "{{ backend_url }}";
+    let currentPage = "chat";
+    let currentTaskId = null;
+    let statusTimer = null;
+    let isSubmitting = false;
+    let executionStartTime = null;
+    let executionMessageElement = null;
+    let executionTimerInterval = null;
+    let lastCompletedStage = null;
+    let thinkingMessageShown = false;
+    let pollAttempts = 0;  // 轮询次数计数
+
+    const thinkingMessages = [
+      "嗯...让我思考一下",
+      "好的，我在分析中",
+      "我需要思考一下",
+      "正在进行深度诊断",
+      "分析中，请稍候",
+      "让我查看一下知识库",
+      "正在关联历史案例",
+      "分析数据中..."
+    ];
+
+    // ========== 页面切换 ==========
+    function switchPage(pageName) {
+      // 隐藏当前页面
+      const currentPageEl = document.getElementById(`page-${currentPage}`);
+      if (currentPageEl) {
+        currentPageEl.classList.remove("active");
+      }
+
+      // 显示新页面
+      const newPageEl = document.getElementById(`page-${pageName}`);
+      if (newPageEl) {
+        newPageEl.classList.add("active");
+      }
+
+      // 更新导航栏按钮状态
+      document.querySelectorAll(".nav-tab").forEach(tab => {
+        const tabPageName = tab.textContent.includes("智能问答") ? "chat"
+                          : tab.textContent.includes("知识库") ? "kb"
+                          : "mcp";
+        if (tabPageName === pageName) {
+          tab.classList.add("active");
+        } else {
+          tab.classList.remove("active");
+        }
+      });
+
+      currentPage = pageName;
+
+      // 页面切换时的初始化
+      if (pageName === "kb") {
+        loadKBStats();
+      } else if (pageName === "mcp") {
+        loadMCPTools();
+      }
+    }
+
+    // ========== 聊天功能 ==========
+    const messagesDiv = document.getElementById("messages");
+    const taskDescription = document.getElementById("task-description");
+    const submitBtn = document.getElementById("submit-btn");
+
+    function addMessage(text, type = "assistant", includeStageInfo = false) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${type}`;
+
+      const contentDiv = document.createElement("div");
+      contentDiv.className = "message-content";
+      contentDiv.textContent = text;
+
+      messageDiv.appendChild(contentDiv);
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+      return contentDiv;
+    }
+
+    async function streamReport(taskId) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "message assistant";
+
+      const contentDiv = document.createElement("div");
+      contentDiv.className = "message-content";
+      contentDiv.textContent = "📄 正在生成诊断报告...\n\n";
+
+      messageDiv.appendChild(contentDiv);
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/diagnosis/tasks/${taskId}/report/stream`);
+
+        if (!response.ok) {
+          contentDiv.textContent = `❌ 报告生成失败: ${response.statusText}`;
+          return;
+        }
+
+        // 创建 pre 标签保留格式
+        const preElement = document.createElement('pre');
+        preElement.style.cssText = 'white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 12px; line-height: 1.4; background: #f5f5f5; padding: 15px; border-radius: 4px; overflow-x: auto; max-height: 70vh; overflow-y: auto;';
+        contentDiv.appendChild(preElement);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let fullText = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          fullText += chunk;
+          preElement.textContent = fullText;  // 用 textContent 而不是 innerHTML，避免 XSS
+          
+          // 同时滚动外层和内层容器，确保滑动块跟随最新输出
+          preElement.scrollTop = preElement.scrollHeight;
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+      } catch (error) {
+        contentDiv.textContent = `❌ 流式报告获取失败: ${error.message}`;
+      }
+    }
+
+    async function pollTaskStatus() {
+      if (!currentTaskId) return;
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/diagnosis/tasks/${currentTaskId}`);
+        if (!response.ok) return;
+
+        const task = await response.json();
+        if (task.status === "completed") {
+          clearInterval(statusTimer);
+          clearInterval(executionTimerInterval);
+          statusTimer = null;
+          executionTimerInterval = null;
+          pollAttempts = 0;
+          addMessage(`✅ 诊断任务已完成！正在加载报告...`, "system");
+          streamReport(currentTaskId);
+        } else if (task.status === "failed") {
+          clearInterval(statusTimer);
+          clearInterval(executionTimerInterval);
+          statusTimer = null;
+          executionTimerInterval = null;
+          pollAttempts = 0;
+          addMessage(`❌ 任务失败: ${task.error || "未知错误"}`, "system");
+        } else if (task.status === "running") {
+          checkAndShowStageProgress(task);
+        }
+      } catch (error) {
+        console.error("轮询失败:", error);
+      }
+    }
+
+    function startPolling() {
+      pollAttempts = 0;
+      function schedulePoll() {
+        // 指数退避：初始1秒，最多8秒
+        const interval = Math.min(1000 * Math.pow(1.5, pollAttempts), 8000);
+        pollAttempts++;
+
+        if (statusTimer) clearInterval(statusTimer);
+        statusTimer = setTimeout(() => {
+          pollTaskStatus();
+          if (statusTimer) schedulePoll();  // 继续轮询
+        }, interval);
+      }
+      schedulePoll();
+    }
+
+    function checkAndShowStageProgress(task) {
+      const planningStage = task.stages?.find(s => s.name === "任务规划");
+
+      if (planningStage && planningStage.status === "done" && !thinkingMessageShown) {
+        thinkingMessageShown = true;
+        const randomMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
+        const messageText = `🤔 ${randomMessage} ⏳ (0s)`;
+        executionMessageElement = addMessage(messageText, "assistant");
+
+        executionStartTime = Date.now();
+        executionTimerInterval = setInterval(() => {
+          if (executionStartTime && executionMessageElement) {
+            const elapsed = Math.floor((Date.now() - executionStartTime) / 1000);
+            const baseText = executionMessageElement.textContent.replace(/ ⏳ \(\d+s\)$/, "");
+            executionMessageElement.textContent = `${baseText} ⏳ (${elapsed}s)`;
+          }
+        }, 1000);
+        return;
+      }
+
+      if (!thinkingMessageShown && executionStartTime) {
+        const elapsed = (Date.now() - executionStartTime) / 1000;
+        if (elapsed > 2) {
+          thinkingMessageShown = true;
+          const randomMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
+          const messageText = `🤔 ${randomMessage} ⏳ (${Math.floor(elapsed)}s)`;
+          executionMessageElement = addMessage(messageText, "assistant");
+
+          executionTimerInterval = setInterval(() => {
+            if (executionStartTime && executionMessageElement) {
+              const elapsed = Math.floor((Date.now() - executionStartTime) / 1000);
+              const baseText = executionMessageElement.textContent.replace(/ ⏳ \(\d+s\)$/, "");
+              executionMessageElement.textContent = `${baseText} ⏳ (${elapsed}s)`;
+            }
+          }, 1000);
+        }
+      }
+    }
+
+    async function submitTask() {
+      const description = taskDescription.value.trim();
+
+      if (!description) {
+        addMessage("❌ 请输入故障现象和工况信息", "system");
+        return;
+      }
+
+      if (isSubmitting) return;
+      isSubmitting = true;
+      submitBtn.disabled = true;
+
+      try {
+        addMessage(`📝 ${description}`, "user");
+
+        const response = await fetch(`${BACKEND_URL}/api/diagnosis/tasks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: "诊断请求",
+            description,
+            symptoms: [],
+            force_optimize: false
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("创建任务失败");
+        }
+
+        const data = await response.json();
+        currentTaskId = data.task_id;
+
+        addMessage(`✨ 诊断任务已启动 (ID: ${currentTaskId})`, "system");
+
+        // 立即显示思考消息
+        executionStartTime = Date.now();
+        thinkingMessageShown = true;
+        const randomMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
+        executionMessageElement = addMessage(`🤔 ${randomMessage} ⏳ (0s)`, "assistant");
+
+        // 启动计时器
+        executionTimerInterval = setInterval(() => {
+          if (executionStartTime && executionMessageElement) {
+            const elapsed = Math.floor((Date.now() - executionStartTime) / 1000);
+            const baseText = executionMessageElement.textContent.replace(/ ⏳ \(\d+s\)$/, "");
+            executionMessageElement.textContent = `${baseText} ⏳ (${elapsed}s)`;
+          }
+        }, 1000);
+
+        if (statusTimer) clearInterval(statusTimer);
+        startPolling();
+        pollTaskStatus();
+
+        taskDescription.value = "";
+
+      } catch (error) {
+        addMessage(`❌ 错误: ${error.message}`, "system");
+      } finally {
+        isSubmitting = false;
+        submitBtn.disabled = false;
+      }
+    }
+
+    // ========== 知识库管理 ==========
+    async function loadKBStats() {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/kb/documents`);
+        if (!response.ok) throw new Error("加载失败");
+
+        const data = await response.json();
+        const docs = data.items || [];
+
+        document.getElementById("stat-doc-count").textContent = docs.length;
+
+        const totalChunks = docs.reduce((sum, doc) => sum + (doc.chunk_count || 0), 0);
+        document.getElementById("stat-chunk-count").textContent = totalChunks;
+      } catch (error) {
+        console.error("加载知识库统计失败:", error);
+      }
+    }
+
+    // 标签页切换
+    function switchKBTab(tabName) {
+      // 隐藏所有标签页
+      document.querySelectorAll(".kb-tab-content").forEach(tab => {
+        tab.classList.remove("active");
+      });
+      document.querySelectorAll(".kb-tab-btn").forEach(btn => {
+        btn.classList.remove("active");
+      });
+
+      // 显示选中标签页
+      document.getElementById(`tab-${tabName}`).classList.add("active");
+      event.target.classList.add("active");
+
+      // 加载对应内容
+      if (tabName === "documents") {
+        loadDocuments();
+      }
+    }
+
+    // 加载文档列表
+    async function loadDocuments() {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/kb/documents`);
+        if (!response.ok) throw new Error("加载失败");
+
+        const data = await response.json();
+        const docs = data.items || [];
+
+        const container = document.getElementById("documents-container");
+
+        if (docs.length === 0) {
+          container.innerHTML = '<div class="documents-empty">📭 暂无文档，请上传文件</div>';
+          return;
+        }
+
+        const tableHTML = `
+          <table class="documents-table">
+            <thead>
+              <tr>
+                <th>文档名称</th>
+                <th>来源</th>
+                <th>向量片段</th>
+                <th>上传时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${docs.map(doc => `
+                <tr>
+                  <td><div class="document-name">📄 ${escapeHtml(doc.title || doc.source || '')}</div></td>
+                  <td class="document-size">${escapeHtml(doc.source || '-')}</td>
+                  <td><span class="document-chunks">${doc.chunk_count || 0} 片段</span></td>
+                  <td class="document-size">${formatDate(doc.created_at || new Date().toISOString())}</td>
+                  <td>
+                    <div class="document-actions">
+                      <button class="btn-delete" onclick="deleteDocument('${escapeHtml(doc.doc_id || '')}', '${escapeHtml(doc.title || doc.source || '')}')">删除</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        container.innerHTML = tableHTML;
+      } catch (error) {
+        console.error("加载文档列表失败:", error);
+        document.getElementById("documents-container").innerHTML = `<div class="documents-empty">❌ 加载失败: ${error.message}</div>`;
+      }
+    }
+
+    // 删除文档
+    async function deleteDocument(docId, docName) {
+      if (!confirm(`确定要删除文档 "${docName}" 吗？`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/kb/documents/${docId}`, {
+          method: "DELETE"
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          alert(`❌ 删除失败: ${err.detail || "未知错误"}`);
+          return;
+        }
+
+        alert(`✅ 文档已删除`);
+        loadKBStats();
+        loadDocuments();
+      } catch (error) {
+        alert(`❌ 删除失败: ${error.message}`);
+      }
+    }
+
+    // 格式化文件大小
+    function formatFileSize(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // 格式化日期
+    function formatDate(dateString) {
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN');
+      } catch {
+        return dateString;
+      }
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.getElementById("upload-section").classList.add("dragover");
+    }
+
+    function handleDragLeave(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.getElementById("upload-section").classList.remove("dragover");
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.getElementById("upload-section").classList.remove("dragover");
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        const file = files[0];
+        uploadFile(file);
+      }
+    }
+
+    function handleFileSelect(e) {
+      const files = e.target.files;
+      if (files.length > 0) {
+        const file = files[0];
+        uploadFile(file);
+      }
+    }
+
+    async function uploadFile(file) {
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch(`${BACKEND_URL}/api/kb/upload`, {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          alert(`上传失败: ${err.detail || "未知错误"}`);
+          return;
+        }
+
+        const data = await response.json();
+        alert(`✅ 文件已上传: ${data.filename}`);
+        loadKBStats();
+
+        // 如果当前在文档列表标签，重新加载
+        const docsTab = document.getElementById("tab-documents");
+        if (docsTab && docsTab.classList.contains("active")) {
+          loadDocuments();
+        }
+
+        document.getElementById("upload-input").value = "";
+      } catch (error) {
+        alert(`❌ 上传失败: ${error.message}`);
+      }
+    }
+
+    async function performSearch() {
+      const query = document.getElementById("search-input").value.trim();
+      if (!query) {
+        alert("请输入搜索内容");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/kb/search`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, top_k: 5 })
+        });
+
+        if (!response.ok) throw new Error("搜索失败");
+
+        const data = await response.json();
+        const results = data.items || [];
+
+        const resultsDiv = document.getElementById("search-results");
+        if (results.length === 0) {
+          resultsDiv.innerHTML = '<div class="search-empty">📭 未找到相关结果</div>';
+          return;
+        }
+
+        resultsDiv.innerHTML = results.map(result => `
+          <div class="search-result-item">
+            <div class="search-result-header">
+              <div>
+                <div class="search-result-title">📄 ${result.title}</div>
+                <div class="search-result-source">来源: ${result.source}</div>
+              </div>
+              <div class="search-result-score">${Math.round(result.score * 100)}% 匹配</div>
+            </div>
+            <div class="search-result-content">${escapeHtml(result.chunk)}</div>
+          </div>
+        `).join("");
+      } catch (error) {
+        alert(`搜索失败: ${error.message}`);
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ========== MCP工具 ==========
+    async function loadMCPTools() {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/health`);
+        if (!response.ok) throw new Error("加载失败");
+
+        const data = await response.json();
+        const tools = [
+          {
+            name: "diagnosis.start",
+            description: "启动多智能体诊断任务，自动分析故障现象并生成诊断报告",
+            params: "title, description, symptoms[], force_optimize"
+          },
+          {
+            name: "diagnosis.status",
+            description: "查询诊断任务的执行状态和进度信息",
+            params: "task_id"
+          },
+          {
+            name: "diagnosis.report",
+            description: "读取诊断任务的最终报告，包含故障位置和维护建议",
+            params: "task_id"
+          },
+          {
+            name: "kb.search",
+            description: "从知识库中搜索相关的技术文档和参考资料",
+            params: "query, top_k (1-10)"
+          },
+          {
+            name: "kb.list",
+            description: "列出知识库中已上传的所有文档",
+            params: "-"
+          }
+        ];
+
+        const toolsGrid = document.getElementById("tools-grid");
+        if (tools.length === 0) {
+          toolsGrid.innerHTML = '<div class="tool-empty">📭 暂无可用工具</div>';
+          return;
+        }
+
+        toolsGrid.innerHTML = tools.map(tool => `
+          <div class="tool-card">
+            <div class="tool-card-name">
+              <span>🔧</span>
+              <span>${tool.name}</span>
+            </div>
+            <div class="tool-card-description">${tool.description}</div>
+            <div class="tool-card-params">
+              <strong>参数:</strong><br/>
+              <div class="tool-param">${tool.params}</div>
+            </div>
+          </div>
+        `).join("");
+      } catch (error) {
+        console.error("加载MCP工具失败:", error);
+        document.getElementById("tools-grid").innerHTML = '<div class="tool-empty">❌ 加载失败</div>';
+      }
+    }
+
+    // 初始化
+    addMessage("👋 欢迎使用基于大模型的多智能体协同的装备诊断平台！\n\n请在下方输入故障现象和工况信息，系统将自动启动多智能体协作进行诊断分析。\n\n左侧菜单可切换到知识库管理和MCP工具查看功能。", "system");
+
+    // 回车快捷提交
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.key === "Enter" && currentPage === "chat") {
+        submitTask();
+      } else if (e.key === "Enter" && currentPage === "kb" && document.activeElement.id === "search-input") {
+        performSearch();
+      }
+    });
+  </script>
+</body>
+</html>

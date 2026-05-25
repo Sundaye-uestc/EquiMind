@@ -32,6 +32,8 @@ class ChatModelFactory(BaseModelFactory):
         }
         if api_key:
             kwargs["api_key"] = api_key
+        if rag_conf.get("enable_thinking"):
+            kwargs["model_kwargs"] = {"extra_body": {"enable_thinking": True}}
         return ChatOpenAI(**kwargs)
 
 
