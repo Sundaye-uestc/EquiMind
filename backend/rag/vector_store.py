@@ -9,7 +9,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from model.factory import embedding_model
 from utils.config_handler import chroma_conf
-from utils.file_handler import pdf_loader, txt_loader, listdir_with_allowed_type, get_file_md5_hex
+from utils.file_handler import pdf_loader, txt_loader, csv_loader, json_loader, listdir_with_allowed_type, get_file_md5_hex
 from utils.logger_handler import logger
 
 project_root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/"
@@ -64,6 +64,13 @@ class VectorStoreService:
 
             if read_path.endswith(".pdf"):
                 return pdf_loader(read_path)
+
+            if read_path.endswith(".csv"):
+                return csv_loader(read_path)
+
+            if read_path.endswith(".json"):
+                return json_loader(read_path)
+
             return []
 
         allowed_file_path = listdir_with_allowed_type(

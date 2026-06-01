@@ -19,6 +19,13 @@ backend/log/
 *.text
 md5.text
 
+# External dataset raw files (too large for git)
+backend/data/cmapss/*.csv
+backend/data/cmapss/train_*.txt
+backend/data/cmapss/test_*.txt
+backend/data/railway/vibration_raw.csv
+backend/data/ntsb/avall.mdb
+
 # Environment
 .env
 .venv/

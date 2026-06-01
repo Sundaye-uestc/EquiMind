@@ -1,7 +1,7 @@
 import hashlib
 import os
 
-from langchain_community.document_loaders import PyPDFLoader, TextLoader
+from langchain_community.document_loaders import PyPDFLoader, TextLoader, CSVLoader, JSONLoader
 from langchain_core.documents import Document
 
 from .logger_handler import logger
@@ -35,16 +35,18 @@ def get_file_md5_hex(filepath: str):             # 获取文件的md5的十六�
         return None
 
 
-def listdir_with_allowed_type(path: str, allowed_types: tuple[str]):          # 返回文件夹内的文件列表（允许的文件后缀）
+def listdir_with_allowed_type(path: str, allowed_types: tuple[str]):
+    """递归扫描目录，返回所有匹配后缀的文件路径列表。"""
     files = []
 
     if not os.path.isdir(path):
         logger.error(f"[listdir_with_allowed_type]{path}不是文件夹")
-        return allowed_types
+        return ()
 
-    for f in os.listdir(path):
-        if f.endswith(allowed_types):
-            files.append(os.path.join(path, f))
+    for root, _dirs, filenames in os.walk(path):
+        for f in filenames:
+            if f.endswith(allowed_types):
+                files.append(os.path.join(root, f))
 
     return tuple(files)
 
@@ -55,3 +57,43 @@ def pdf_loader(filepath: str, passwd=None) -> list[Document]:
 
 def txt_loader(filepath: str) -> list[Document]:
     return TextLoader(filepath, encoding='utf-8').load()
+
+
+def csv_loader(filepath: str) -> list[Document]:
+    """
+    加载CSV文件，将每行数据转为文本文档。
+    CSV第一行作为表头，后续每行生成一个Document，
+    page_content格式为 "col1: val1, col2: val2, ..."
+    """
+    try:
+        loader = CSVLoader(
+            file_path=filepath,
+            encoding="utf-8",
+            csv_args={"delimiter": ",", "quotechar": '"'},
+        )
+        docs = loader.load()
+        logger.info(f"[CSV加载]{filepath}：共{len(docs)}行记录")
+        return docs
+    except Exception as e:
+        logger.error(f"[CSV加载]{filepath}失败：{str(e)}")
+        return []
+
+
+def json_loader(filepath: str, jq_schema: str = ".[]") -> list[Document]:
+    """
+    加载JSON文件，使用jq表达式提取文档。
+    默认 jq_schema=".[]" 提取顶层数组的每个元素。
+    每个元素的所有字段展平为 "key: value" 格式的文本。
+    """
+    try:
+        loader = JSONLoader(
+            file_path=filepath,
+            jq_schema=jq_schema,
+            text_content=False,
+        )
+        docs = loader.load()
+        logger.info(f"[JSON加载]{filepath}：共{len(docs)}个文档")
+        return docs
+    except Exception as e:
+        logger.error(f"[JSON加载]{filepath}失败：{str(e)}")
+        return []
