@@ -44,8 +44,8 @@ EquiMind/
 ### 安装
 
 ```bash
-git clone https://github.com/Sundaye-uestc/AgentLearning.git
-cd AgentLearning
+git clone https://github.com/Sundaye-uestc/EquiMind.git
+cd EquiMind
 
 # 创建虚拟环境
 python -m venv .venv
