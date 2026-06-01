@@ -71,7 +71,26 @@ def _run_agent(task_id: str, query: str):
 
         query_preview = query[:60].replace('\n', ' ') + ('...' if len(query) > 60 else '')
         time.sleep(random.uniform(0.5, 1.5))
-        tasks[task_id]["thinking_chunks"].append(f"嗯……用户问到：{query_preview}\n\n")
+
+        # 随机开场句列表
+        INTROS = [
+            f"嗯……用户问到：{query_preview}",
+            f"让我看看……用户的问题是：{query_preview}",
+            f"收到，用户想知道：{query_preview}",
+            f"好的，让我理解一下问题：{query_preview}",
+            f"嗯，这个问题是：{query_preview}",
+            f"明白了，用户问的是：{query_preview}",
+            f"让我梳理一下用户的需求：{query_preview}",
+            f"用户提出了一个问题：{query_preview}",
+            f"好问题！让我分析一下：{query_preview}",
+            f"用户想了解：{query_preview}",
+            f"让我思考一下这个问题：{query_preview}",
+            f"好的，用户询问：{query_preview}",
+            f"收到问题，核心关注点是：{query_preview}",
+            f"让我看一下用户的具体问题：{query_preview}",
+            f"有意思的问题：{query_preview}",
+        ]
+        tasks[task_id]["thinking_chunks"].append(random.choice(INTROS) + "\n\n")
 
         # 随机过渡句列表 — 在模型复述用户问题后插入
         TRANSITIONS = [
