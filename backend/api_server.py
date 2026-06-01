@@ -73,6 +73,25 @@ def _run_agent(task_id: str, query: str):
         time.sleep(random.uniform(0.5, 1.5))
         tasks[task_id]["thinking_chunks"].append(f"嗯……用户问到：{query_preview}\n\n")
 
+        # 随机过渡句列表 — 在模型复述用户问题后插入
+        TRANSITIONS = [
+            "让我先检索一下相关信息……",
+            "我需要查一下相关资料……",
+            "先看看知识库里有没有这方面的内容……",
+            "让我调取一下相关的技术资料……",
+            "这个问题需要查一下专业资料，让我检索一下……",
+            "我先从知识库中找一下相关信息……",
+            "让我翻阅一下相关的技术文档……",
+            "得查一查有没有这方面的数据……",
+            "让我在知识库里搜索一下……",
+            "先检索一下向量库里的相关资料……",
+            "这个问题涉及专业知识，让我查一下……",
+            "让我想想，先看看资料库里有什么……",
+            "我先调取相关的参考文献……",
+            "让我搜索一下相关的行业标准和技术规范……",
+            "先查查有没有匹配的知识片段……",
+        ]
+
         for i, chunk in enumerate(agent.execute_stream(query)):
             if i == 0:
                 q = query.strip()
@@ -81,6 +100,11 @@ def _run_agent(task_id: str, query: str):
                     chunk = ""
                 elif c.startswith(q):
                     chunk = c[len(q):].strip() + "\n" if c[len(q):].strip() else ""
+                # 模型复述完用户问题后，插入随机过渡句
+                if chunk:
+                    chunk = chunk.rstrip() + "\n\n" + random.choice(TRANSITIONS) + "\n\n"
+                else:
+                    chunk = random.choice(TRANSITIONS) + "\n\n"
             if chunk:
                 all_chunks.append(chunk)
                 tasks[task_id]["thinking_chunks"].append(chunk)
