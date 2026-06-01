@@ -1,0 +1,7 @@
+chat_model_name: deepseek-v4-pro
+chat_api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+chat_api_key_env: your_api_key_here
+enable_thinking: true
+embedding_model_name: text-embedding-v4
+embedding_provider: dashscope
+embedding_api_key_env: your_api_key_here
