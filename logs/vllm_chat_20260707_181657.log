@@ -86,3 +86,15 @@
 (APIServer pid=78108) INFO:     127.0.0.1:50358 - "GET /v1/models HTTP/1.1" 200 OK
 (APIServer pid=78108) INFO:     127.0.0.1:43998 - "GET /v1/models HTTP/1.1" 200 OK
 (APIServer pid=78108) INFO:     127.0.0.1:36440 - "GET /v1/models HTTP/1.1" 200 OK
+(APIServer pid=78108) INFO:     127.0.0.1:50128 - "GET /v1/models HTTP/1.1" 200 OK
+(APIServer pid=78108) INFO:     127.0.0.1:42448 - "GET /v1/models HTTP/1.1" 200 OK
+(APIServer pid=78108) ERROR 07-07 20:56:33 [serving.py:224] Error with model error=ErrorInfo(message='The model `Qwen3-14B-AWQ` does not exist.', type='NotFoundError', param='model', code=404)
+(APIServer pid=78108) INFO:     127.0.0.1:42456 - "POST /v1/chat/completions HTTP/1.1" 404 Not Found
+(APIServer pid=78108) ERROR 07-07 20:56:33 [serving.py:224] Error with model error=ErrorInfo(message='The model `Qwen3-14B-AWQ` does not exist.', type='NotFoundError', param='model', code=404)
+(APIServer pid=78108) INFO:     127.0.0.1:42456 - "POST /v1/chat/completions HTTP/1.1" 404 Not Found
+(APIServer pid=78108) ERROR 07-07 20:56:33 [serving.py:224] Error with model error=ErrorInfo(message='The model `Qwen3-14B-AWQ` does not exist.', type='NotFoundError', param='model', code=404)
+(APIServer pid=78108) INFO:     127.0.0.1:42456 - "POST /v1/chat/completions HTTP/1.1" 404 Not Found
+(APIServer pid=78108) INFO:     127.0.0.1:46972 - "GET /v1/models HTTP/1.1" 200 OK
+(APIServer pid=78108) INFO:     127.0.0.1:46984 - "POST /v1/chat/completions HTTP/1.1" 400 Bad Request
+(APIServer pid=78108) INFO:     127.0.0.1:46984 - "POST /v1/chat/completions HTTP/1.1" 400 Bad Request
+(APIServer pid=78108) INFO:     127.0.0.1:46984 - "POST /v1/chat/completions HTTP/1.1" 400 Bad Request

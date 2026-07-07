@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/data/sqx/conda/equimind/bin/vllm", line 6, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/data/sqx/conda/equimind/lib/python3.12/site-packages/vllm/entrypoints/cli/main.py", line 92, in main
+    cmds[args.subparser].validate(args)
+  File "/data/sqx/conda/equimind/lib/python3.12/site-packages/vllm/entrypoints/cli/serve.py", line 151, in validate
+    validate_parsed_serve_args(args)
+  File "/data/sqx/conda/equimind/lib/python3.12/site-packages/vllm/entrypoints/openai/cli_args.py", line 397, in validate_parsed_serve_args
+    raise TypeError("Error: --enable-auto-tool-choice requires --tool-call-parser")
+TypeError: Error: --enable-auto-tool-choice requires --tool-call-parser

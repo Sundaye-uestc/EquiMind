@@ -7,7 +7,7 @@
 #   openai_compatible - 其他 OpenAI 兼容 API
 #
 # 模型切换指南：
-#   本地 Qwen3-14B-AWQ (首选):  backend: local, chat_model_name: Qwen3-14B-AWQ
+#   本地 Qwen3-14B-AWQ (首选):  backend: local, chat_model_name: /data/sqx/models/huggingface/Qwen3-14B-AWQ
 #   本地 Qwen3-8B (备选):      backend: local, chat_model_name: Qwen3-8B
 #   本地 Qwen3-32B-AWQ (大):   backend: local, chat_model_name: Qwen3-32B-AWQ
 #   云端 DeepSeek-V4:          backend: dashscope
@@ -18,13 +18,13 @@
 #     3. 若 Embedding 模型变化，删除旧 ChromaDB 并重建向量库
 # ============================================================
 
-backend: local
+backend: dashscope
 
 # ------------------------------------------------------------
 # 本地 vLLM 配置（backend: local 时生效）
 # ------------------------------------------------------------
 local:
-  chat_model_name: Qwen3-14B-AWQ
+  chat_model_name: /data/sqx/models/huggingface/Qwen3-14B-AWQ
   chat_api_base: http://localhost:8002/v1
   chat_api_key_env: not-needed        # vLLM 不需要真 key；_resolve_api_key 解析失败后当字面量使用
 
