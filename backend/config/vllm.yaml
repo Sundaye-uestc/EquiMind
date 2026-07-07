@@ -1,0 +1,25 @@
+# ============================================================
+# vLLM 本地推理服务参数
+# ============================================================
+# 仅在 backend: local 时使用，由 scripts/start_vllm_*.sh 读取
+# ============================================================
+
+chat:
+  host: 0.0.0.0
+  port: 8002
+  model_path: /data/sqx/models/huggingface/Qwen3-14B-AWQ
+  tensor_parallel_size: 1            # 单卡固定为 1
+  max_model_len: 32768
+  gpu_memory_utilization: 0.85       # 留 ~15% 给 Embedding 模型
+  dtype: auto                        # AWQ 自动识别
+  trust_remote_code: true
+
+embedding:
+  host: 0.0.0.0
+  port: 8003
+  model_path: /data/sqx/models/modelscope/models/BAAI--bge-m3/snapshots/master
+  tensor_parallel_size: 1
+  max_model_len: 8192
+  gpu_memory_utilization: 0.10       # bge-m3 仅 ~2GB，无需占满
+  task: embed
+  trust_remote_code: true

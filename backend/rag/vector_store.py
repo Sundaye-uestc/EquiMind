@@ -8,7 +8,7 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from model.factory import embedding_model
-from utils.config_handler import chroma_conf
+from utils.config_handler import chroma_conf, rag_conf, write_chroma_metadata
 from utils.file_handler import pdf_loader, txt_loader, csv_loader, json_loader, listdir_with_allowed_type, get_file_md5_hex
 from utils.logger_handler import logger
 
@@ -105,6 +105,16 @@ class VectorStoreService:
             except Exception as e:
                 # exe_info为True会记录详细报错
                 logger.error(f"[加载知识库]{path}加载失败：{str(e)}", exc_info=True)
+
+        # 记录当前 embedding 模型元数据（用于后续维度一致性检查）
+        try:
+            write_chroma_metadata(
+                persist_dir=project_root_path + chroma_conf["persist_directory"],
+                embedding_model=rag_conf.get("embedding_model_name", "unknown"),
+                dimension=chroma_conf.get("embedding_dimension", 1024),
+            )
+        except Exception:
+            pass  # 元数据写入失败不影响核心流程
 
 
 # if __name__ == "__main__":

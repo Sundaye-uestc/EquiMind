@@ -8,3 +8,7 @@ allow_knowledge_file_type: ["txt", "pdf", "csv", "json"]
 chunk_size: 200
 chunk_overlap: 20
 separators: ["\n\n", "\n", ".", "!", "?", "。", "！", "？", " ", ""]
+
+# Embedding 维度一致性检查
+# 切换 embedding 模型时，若新模型维度与已有向量库不一致，必须重建向量库
+embedding_dimension: 1024     # text-embedding-v4 / BAAI/bge-m3 均为 1024
