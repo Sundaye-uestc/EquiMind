@@ -1,0 +1,7 @@
+[start_vllm_embedding] 模型: /data/sqx/models/modelscope/models/BAAI--bge-m3/snapshots/master
+[start_vllm_embedding] 端口: 8003  |  显存利用率: 0.10  |  task: embed
+[start_vllm_embedding] 日志: /data/sqx/Equimind/logs/vllm_embedding_20260707_180108.log
+[start_vllm_embedding] bge-m3 加载约需 30-60 秒...
+usage: vllm [-h] [-v]
+            {chat,complete,serve,launch,bench,collect-env,run-batch} ...
+vllm: error: unrecognized arguments: --task embed

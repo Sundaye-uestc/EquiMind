@@ -18,7 +18,7 @@
 #     3. 若 Embedding 模型变化，删除旧 ChromaDB 并重建向量库
 # ============================================================
 
-backend: dashscope
+backend: local
 
 # ------------------------------------------------------------
 # 本地 vLLM 配置（backend: local 时生效）
@@ -33,7 +33,7 @@ local:
   #   temperature: 0.7
   #   top_p: 0.8
 
-  embedding_model_name: BAAI/bge-m3
+  embedding_model_name: /data/sqx/models/modelscope/models/BAAI--bge-m3/snapshots/master
   embedding_api_base: http://localhost:8003/v1
   embedding_api_key_env: not-needed
   embedding_provider: openai_compatible   # 走 OpenAI 兼容 API
